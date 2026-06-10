@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff6ec" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1b1714" media="(prefers-color-scheme: dark)" />
+  <title>Unstuck</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <button id="cog" class="cog" type="button" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="currentColor" d="M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.07-.98l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a7.3 7.3 0 0 0-1.69-.98l-.38-2.65A.49.49 0 0 0 14 2h-4a.49.49 0 0 0-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.14.24.42.32.61.22l2.49-1c.52.39 1.08.73 1.69.98l.38 2.65c.04.24.25.42.49.42h4c.24 0 .45-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.24.09.5 0 .61-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
+      </svg>
+    </button>
+
+    <!-- HOME: one big button + optional, collapsed constraints -->
+    <section id="home" class="view">
+      <header class="brand">
+        <h1>Unstuck</h1>
+        <p id="greeting" class="greeting"></p>
+        <button id="ctx" class="ctx" type="button">📍 Use location &amp; weather</button>
+      </header>
+
+      <button id="go" class="go-btn">Give me something to do</button>
+
+      <button id="toggle-tune" class="tune-toggle" aria-expanded="false">
+        Tune it &nbsp;<span class="chev">▾</span>
+      </button>
+
+      <div id="tune" class="tune" hidden>
+        <div class="field" data-key="energy">
+          <span class="field-label">Energy</span>
+          <div class="chips">
+            <button class="chip" data-val="low">low</button>
+            <button class="chip is-on" data-val="medium">medium</button>
+            <button class="chip" data-val="high">high</button>
+          </div>
+        </div>
+
+        <div class="field" data-key="time">
+          <span class="field-label">Time</span>
+          <div class="chips">
+            <button class="chip" data-val="10">10 min</button>
+            <button class="chip" data-val="30">30 min</button>
+            <button class="chip" data-val="120">2 hrs</button>
+            <button class="chip is-on" data-val="flexible">flexible</button>
+          </div>
+        </div>
+
+        <div class="field" data-key="reach">
+          <span class="field-label">How far will you go</span>
+          <div class="chips">
+            <button class="chip" data-val="here">stay here</button>
+            <button class="chip" data-val="walk">short walk</button>
+            <button class="chip" data-val="drive">short drive</button>
+            <button class="chip is-on" data-val="flexible">anywhere</button>
+          </div>
+        </div>
+
+        <div class="field" data-key="budget">
+          <span class="field-label">Budget</span>
+          <div class="chips">
+            <button class="chip" data-val="free">free</button>
+            <button class="chip" data-val="low">low</button>
+            <button class="chip is-on" data-val="flexible">flexible</button>
+          </div>
+        </div>
+
+        <div class="field" data-key="social">
+          <span class="field-label">Solo or social</span>
+          <div class="chips">
+            <button class="chip" data-val="solo">solo</button>
+            <button class="chip" data-val="social">social</button>
+            <button class="chip is-on" data-val="either">either</button>
+          </div>
+        </div>
+
+        <div class="field" data-key="vibe">
+          <span class="field-label">Vibe</span>
+          <div class="chips">
+            <button class="chip is-on" data-val="undefined">surprise me</button>
+            <button class="chip" data-val="calm">calm</button>
+            <button class="chip" data-val="creative">creative</button>
+            <button class="chip" data-val="adventurous">adventurous</button>
+            <button class="chip" data-val="productive">productive</button>
+          </div>
+        </div>
+
+        <label class="field stuck-field">
+          <span class="field-label">I'm stuck doing… <em>(optional)</em></span>
+          <input id="stuck" type="text" inputmode="text" autocomplete="off"
+                 placeholder="scrolling, procrastinating, can't sleep…" />
+        </label>
+      </div>
+    </section>
+
+    <!-- RESULT: a single action, reroll, feedback -->
+    <section id="result" class="view" hidden>
+      <p class="result-eyebrow">Do this now</p>
+      <p id="action" class="action"></p>
+
+      <div id="feedback" class="feedback" hidden>
+        <p class="feedback-q">How'd that land?</p>
+        <div class="feedback-btns">
+          <button class="fb" data-fb="done-good">👍 Did it</button>
+          <button class="fb" data-fb="done-meh">😐 Did it, meh</button>
+          <button class="fb" data-fb="skip">✕ Not this time</button>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button id="reroll" class="reroll-btn">Something else <span id="reroll-count"></span></button>
+        <button id="back" class="ghost-btn">Done for now</button>
+      </div>
+    </section>
+
+    <!-- SETTINGS: icon-only cog opens this. Toggle switches for optional context. -->
+    <section id="settings" class="view" hidden>
+      <header class="settings-head">
+        <button id="settings-close" class="ghost-btn" type="button">‹ Back</button>
+        <h2>Settings</h2>
+      </header>
+
+      <div class="set-list">
+        <div class="set-row" data-set="useLocation">
+          <div class="set-text">
+            <span class="set-title">Use my location</span>
+            <span class="set-sub">Lets suggestions react to where you are. Nothing leaves your device except the anonymous weather &amp; map lookups.</span>
+          </div>
+          <label class="switch"><input type="checkbox" id="set-useLocation"><span class="slider"></span></label>
+        </div>
+
+        <div class="set-row" data-set="useWeather">
+          <div class="set-text">
+            <span class="set-title">Weather-aware suggestions</span>
+            <span class="set-sub">Steers you indoors in bad weather, outdoors in good — and unlocks rain/snow moments.</span>
+          </div>
+          <label class="switch"><input type="checkbox" id="set-useWeather"><span class="slider"></span></label>
+        </div>
+
+        <div class="set-row" data-set="useNearby">
+          <div class="set-text">
+            <span class="set-title">Suggest real nearby places</span>
+            <span class="set-sub">Names actual cafés, parks, libraries &amp; shops near you, with walking times.</span>
+          </div>
+          <label class="switch"><input type="checkbox" id="set-useNearby"><span class="slider"></span></label>
+        </div>
+
+        <div class="set-row" data-set="nudgeOutdoors">
+          <div class="set-text">
+            <span class="set-title">Nudge me toward getting outside</span>
+            <span class="set-sub">Biases suggestions toward leaving the house, weather permitting.</span>
+          </div>
+          <label class="switch"><input type="checkbox" id="set-nudgeOutdoors"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <p class="set-group-label">Units</p>
+      <div class="set-list">
+        <div class="set-row">
+          <div class="set-text">
+            <span class="set-title">Temperature</span>
+            <span class="set-sub">How weather readings are shown.</span>
+          </div>
+          <div class="seg" data-set="tempUnit" role="group" aria-label="Temperature unit">
+            <button class="seg-btn" type="button" data-val="C">°C</button>
+            <button class="seg-btn" type="button" data-val="F">°F</button>
+          </div>
+        </div>
+
+        <div class="set-row">
+          <div class="set-text">
+            <span class="set-title">Measurements</span>
+            <span class="set-sub">Distances and lengths in suggestions.</span>
+          </div>
+          <div class="seg" data-set="units" role="group" aria-label="Measurement system">
+            <button class="seg-btn" type="button" data-val="metric">Metric</button>
+            <button class="seg-btn" type="button" data-val="imperial">Imperial</button>
+          </div>
+        </div>
+      </div>
+
+      <button id="clear-data" class="ghost-btn danger" type="button">Clear saved data</button>
+    </section>
+  </main>
+
+  <script src="util.js"></script>
+  <script src="settings.js"></script>
+  <script src="units.js"></script>
+  <script src="context.js"></script>
+  <script src="activities.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

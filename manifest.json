@@ -1,0 +1,13 @@
+{
+  "name": "Unstuck",
+  "short_name": "Unstuck",
+  "description": "Turns low-motivation states into one immediate, real-world action.",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff6ec",
+  "theme_color": "#fff6ec",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
