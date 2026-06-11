@@ -54,6 +54,20 @@ key-less weather lookup.
 - **On your phone:** serve on your network and "Add to Home Screen". Location + weather
   need HTTPS (or localhost) — geolocation is blocked on plain-HTTP origins by browsers.
 
+## Tests
+
+The engine's pure functions (daypart, season, region, the feasibility filters, and the
+scoring weights) have a zero-dependency test suite. It needs only Node — no `npm install`,
+no framework:
+
+```
+node engine.test.js
+```
+
+72 assertions covering hemisphere season-flips, timezone→country mapping, weather
+triggers, the hard feasibility gates, and that each named scoring weight (`W.*` in
+`engine.js`) contributes exactly the documented amount.
+
 ## How it works
 
 ```

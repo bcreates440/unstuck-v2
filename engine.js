@@ -15,6 +15,28 @@ const OPEN_FROM = 8;
 const OPEN_TO = 21;
 const REACH_ORDER = { here: 0, walk: 1, drive: 2 };
 
+// Scoring weights — only the ratios between values matter; the pool is
+// renormalized before each weighted-random pick so absolute magnitude is
+// irrelevant. Adjust these to tune suggestion steering without touching logic.
+const W = {
+  VIBE_MATCH:          3,     // explicit vibe selected and matched
+  VIBE_OPEN:           0.5,   // "surprise me" — no preference expressed, small generic bonus
+  STUCK_MATCH:         2.5,   // "stuck doing ___" tag hit — nearly as strong as a vibe match
+  WEATHER_TIMELY:      2,     // weather-only special surfaced in its exact trigger conditions
+  WEATHER_OUTDOOR_NICE: 0.6,  // mild outdoor bonus when conditions are fine
+  WEATHER_OUTDOOR_BAD: -2,    // strong outdoor penalty when weather is hostile
+  WEATHER_INDOOR_COZY: 1,     // indoor bonus when going outside is hostile ("cozy-in" nudge)
+  TIMELY:              0.8,   // in-season or in-region: contextual relevance bonus
+  NUDGE_OUTDOOR:       1.2,   // user opted "nudge me outside" — mild; weather still dominates
+  NUDGE_INDOOR:       -0.3,   // mild indoor penalty when nudge-outdoors preference is on
+  NOVELTY:             1.5,   // never-shown activity: encourage variety
+  LIKED_PER:           1.0,   // per historical like: reinforce enjoyed activities
+  DISLIKED_PER:       -1.2,   // per dislike: stronger avoidance than liking (negatives are stickier)
+  OVERSHOW_RATE:       0.15,  // per showing: gradual staleness — avoids repeating too soon
+  OVERSHOW_CAP:        1.0,   // ceiling on the staleness penalty
+  FLOOR:               0.05,  // minimum weight — every feasible activity stays pickable
+};
+
 const Engine = {
   // Daypart from real sunrise/sunset when we have them; otherwise a clock heuristic.
   daypartFromClock(hour) {
@@ -162,37 +184,37 @@ const Engine = {
 
   score(a, c, ctx, stats) {
     let w = 1;
-    if (c.vibe && c.vibe !== 'undefined') w += a.vibe.includes(c.vibe) ? 3 : 0;
-    else w += 0.5;
+    if (c.vibe && c.vibe !== 'undefined') w += a.vibe.includes(c.vibe) ? W.VIBE_MATCH : 0;
+    else w += W.VIBE_OPEN;
 
-    if (Engine.stuckMatch(a, c.stuck)) w += 2.5;
+    if (Engine.stuckMatch(a, c.stuck)) w += W.STUCK_MATCH;
 
     // Weather steering (only when we actually know the weather).
     if (ctx.weather) {
-      if (a.weatherOnly) w += 2; // timely & delightful -> surface it
-      else if (a.env === 'outdoor') w += ctx.weather.outdoorHostile ? -2 : 0.6;
-      else if (a.env === 'indoor' && ctx.weather.outdoorHostile) w += 1; // cozy-in nudge
+      if (a.weatherOnly)            w += W.WEATHER_TIMELY;
+      else if (a.env === 'outdoor') w += ctx.weather.outdoorHostile ? W.WEATHER_OUTDOOR_BAD : W.WEATHER_OUTDOOR_NICE;
+      else if (a.env === 'indoor' && ctx.weather.outdoorHostile) w += W.WEATHER_INDOOR_COZY;
     }
 
     // In-season and in-region activities are timely/relevant -> a small surfacing bonus.
-    if (a.seasons) w += 0.8;
-    if (a.regions) w += 0.8;
+    if (a.seasons) w += W.TIMELY;
+    if (a.regions) w += W.TIMELY;
 
     // "Nudge me outside" preference (mild; weather hostility still dominates).
     if (ctx.prefs.nudgeOutdoors) {
-      if (a.env === 'outdoor') w += 1.2;
-      else if (a.env === 'indoor') w -= 0.3;
+      if (a.env === 'outdoor')     w += W.NUDGE_OUTDOOR;
+      else if (a.env === 'indoor') w += W.NUDGE_INDOOR;
     }
 
     const st = stats[a.id];
     if (!st || !st.shown) {
-      w += 1.5; // never seen -> novelty
+      w += W.NOVELTY;
     } else {
-      w += (st.liked || 0) * 1.0;
-      w -= (st.disliked || 0) * 1.2;
-      w -= Math.min(st.shown * 0.15, 1.0);
+      w += (st.liked    || 0) * W.LIKED_PER;
+      w += (st.disliked || 0) * W.DISLIKED_PER;
+      w -= Math.min(st.shown * W.OVERSHOW_RATE, W.OVERSHOW_CAP);
     }
-    return Math.max(w, 0.05);
+    return Math.max(w, W.FLOOR);
   },
 
   // Returns { activity, text } or null if nothing fits.
