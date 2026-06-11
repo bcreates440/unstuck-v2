@@ -121,14 +121,15 @@ const Context = {
 
   /* ---------------- nearby places (Overpass / OSM, no key) ---------------- */
   async fetchPlaces(lat, lon) {
+    const la = lat.toFixed(5), lo = lon.toFixed(5);
     const q = `[out:json][timeout:20];(`
-      + `node["amenity"~"^(cafe|restaurant|fast_food|bar|pub|library)$"](around:1600,${lat},${lon});`
-      + `node["shop"~"^(supermarket|convenience|books)$"](around:1600,${lat},${lon});`
-      + `node["leisure"="park"](around:1600,${lat},${lon});`
-      + `way["leisure"="park"](around:1600,${lat},${lon});`
-      + `node["natural"="water"](around:2500,${lat},${lon});`
-      + `way["natural"="water"](around:2500,${lat},${lon});`
-      + `way["waterway"](around:2000,${lat},${lon});`
+      + `node["amenity"~"^(cafe|restaurant|fast_food|bar|pub|library)$"](around:1600,${la},${lo});`
+      + `node["shop"~"^(supermarket|convenience|books)$"](around:1600,${la},${lo});`
+      + `node["leisure"="park"](around:1600,${la},${lo});`
+      + `way["leisure"="park"](around:1600,${la},${lo});`
+      + `node["natural"="water"](around:2500,${la},${lo});`
+      + `way["natural"="water"](around:2500,${la},${lo});`
+      + `way["waterway"](around:2000,${la},${lo});`
       + `);out center tags 80;`;
     const r = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q });
     if (!r.ok) throw new Error('places fetch failed');

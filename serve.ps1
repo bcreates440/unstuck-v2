@@ -39,10 +39,27 @@ try {
     try {
       $rel = [Uri]::UnescapeDataString($req.Url.AbsolutePath.TrimStart('/'))
       if ([string]::IsNullOrEmpty($rel)) { $rel = 'index.html' }
-      $path = Join-Path $root $rel
+      $resolved = (Join-Path $root $rel)
+      # Resolve the canonical path and confirm it stays inside $root (path traversal guard).
+      $canonical = [System.IO.Path]::GetFullPath($resolved)
+      $rootFull  = [System.IO.Path]::GetFullPath($root)
+      if (-not $canonical.StartsWith($rootFull + [System.IO.Path]::DirectorySeparatorChar) -and
+          $canonical -ne $rootFull) {
+        $res.StatusCode = 403
+        $res.ContentType = 'text/plain; charset=utf-8'
+        $msg = [System.Text.Encoding]::UTF8.GetBytes('403 Forbidden')
+        $res.ContentLength64 = $msg.Length
+        $res.OutputStream.Write($msg, 0, $msg.Length)
+        return
+      }
+      $path = $canonical
       if (Test-Path -LiteralPath $path -PathType Container) {
         $path = Join-Path $path 'index.html'
       }
+      # Security headers on every response.
+      $res.Headers['X-Content-Type-Options'] = 'nosniff'
+      $res.Headers['X-Frame-Options']        = 'DENY'
+      $res.Headers['Referrer-Policy']        = 'no-referrer'
       if (Test-Path -LiteralPath $path -PathType Leaf) {
         $bytes = [System.IO.File]::ReadAllBytes($path)
         $ext   = [System.IO.Path]::GetExtension($path).ToLowerInvariant()
@@ -53,7 +70,9 @@ try {
         $res.OutputStream.Write($bytes, 0, $bytes.Length)
       } else {
         $res.StatusCode = 404
-        $msg = [System.Text.Encoding]::UTF8.GetBytes("404 Not Found: $rel")
+        $res.ContentType = 'text/plain; charset=utf-8'
+        $msg = [System.Text.Encoding]::UTF8.GetBytes('404 Not Found')
+        $res.ContentLength64 = $msg.Length
         $res.OutputStream.Write($msg, 0, $msg.Length)
       }
     } catch {

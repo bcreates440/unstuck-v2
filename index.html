@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://api.open-meteo.com https://overpass-api.de; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none';" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="Referrer-Policy" content="no-referrer" />
   <meta name="theme-color" content="#fff6ec" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#1b1714" media="(prefers-color-scheme: dark)" />
   <title>Unstuck</title>
