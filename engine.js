@@ -13,7 +13,11 @@
 const TIME_MINUTES = { '10': 10, '30': 30, '120': 120, 'flexible': Infinity };
 const OPEN_FROM = 8;
 const OPEN_TO = 21;
-const REACH_ORDER = { here: 0, walk: 1, drive: 2 };
+// Budget tiers: free (0) < $ (1) < $$ (2). 'flexible' accepts anything.
+// 'low' is the legacy value for old saved data / activities -> treated as '$'.
+const BUDGET_TIER = { free: 0, '$': 1, '$$': 2, low: 1 };
+// A 'walk' activity counts as a "long walk" at/above this realistic-minute floor.
+const LONG_WALK_MIN = 15;
 
 // Scoring weights — only the ratios between values matter; the pool is
 // renormalized before each weighted-random pick so absolute magnitude is
@@ -78,7 +82,7 @@ const Engine = {
       weather,
       season: Engine.season(now, lat),
       region: Engine.region(ambient.tz),
-      reachMax: REACH_ORDER[constraints.reach] ?? 2, // 'flexible'/undefined -> drive
+      reach: constraints.reach || 'flexible', // raw "how far will you go" selection
       prefs: ambient.prefs || {},
       places,
       // measurement formatters (respect the user's unit settings) for activity text
@@ -127,10 +131,29 @@ const Engine = {
     if (a.social === 'either') return true;
     return a.social === want;
   },
+  // Budget ceiling: 'free' shows only free; '$' shows free + $; '$$' shows all;
+  // 'flexible' accepts anything. ('low' kept as a legacy alias for '$'.)
   budgetOk(a, want) {
-    if (want === 'flexible') return true;
-    if (want === 'free') return a.budget === 'free';
-    return true; // 'low' accepts free + low
+    if (!want || want === 'flexible') return true;
+    const ceil = BUDGET_TIER[want] ?? 2;
+    return (BUDGET_TIER[a.budget] ?? 0) <= ceil;
+  },
+
+  isLongWalk(a) { return a.reach === 'walk' && a.minMinutes >= LONG_WALK_MIN; },
+  // "How far will you go" — interprets the user's reach selection against an activity:
+  //   here     -> stay put (no travel)
+  //   indoor   -> stay in: indoor/either activities that need no travel
+  //   walk     -> here + short walks (excludes long walks & drives)
+  //   longwalk -> here + genuinely long walks (excludes short walks & drives)
+  //   drive    -> anywhere a short drive reaches (everything)
+  //   flexible -> everything
+  reachOk(a, reach) {
+    if (!reach || reach === 'flexible' || reach === 'drive') return true;
+    if (reach === 'here')     return a.reach === 'here';
+    if (reach === 'indoor')   return a.reach === 'here' && (a.env === 'indoor' || a.env === 'either');
+    if (reach === 'walk')     return a.reach === 'here' || (a.reach === 'walk' && !Engine.isLongWalk(a));
+    if (reach === 'longwalk') return a.reach === 'here' || Engine.isLongWalk(a);
+    return true;
   },
 
   // Does the ambient weather satisfy a weather-only activity's trigger?
@@ -156,7 +179,7 @@ const Engine = {
     if (!Engine.budgetOk(a, c.budget)) return false;
     if (!a.daypart.includes(ctx.daypart)) return false;
     if (a.needsOpen && !ctx.venuesOpen) return false;
-    if ((REACH_ORDER[a.reach] ?? 0) > ctx.reachMax) return false;
+    if (!Engine.reachOk(a, ctx.reach)) return false;
     if (a.needsLight && !ctx.daylight) return false;
     // seasonal gating (calendar-based, always known)
     if (a.seasons && !a.seasons.includes(ctx.season)) return false;

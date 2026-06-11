@@ -1,5 +1,5 @@
 // Minimal offline cache. Bump CACHE when files change to refresh clients.
-const CACHE = 'unstuck-v8';
+const CACHE = 'unstuck-v9';
 const ASSETS = [
   '.', 'index.html', 'styles.css',
   'util.js', 'settings.js', 'units.js', 'context.js', 'activities.js', 'engine.js', 'app.js',

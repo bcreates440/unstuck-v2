@@ -78,17 +78,18 @@ function readConstraints() {
 
 function applyConstraints(c) {
   if (!c) return;
+  if (c.budget === 'low') c.budget = '$'; // migrate any legacy saved budget value
   document.querySelectorAll('#tune .field[data-key]').forEach((f) => {
     const val = c[f.dataset.key];
     if (val == null) return;
     f.querySelectorAll('.chip').forEach((chip) => chip.classList.toggle('is-on', chip.dataset.val === val));
   });
+  if (typeof c.stuck === 'string') el('stuck').value = c.stuck; // remember the note too
 }
 
 function persistConstraints(c) {
   try {
-    const { stuck, ...rest } = c; // don't persist the free-text "stuck" note
-    localStorage.setItem(PREFS_KEY, JSON.stringify(rest));
+    localStorage.setItem(PREFS_KEY, JSON.stringify(c)); // remember every pick, including the note
   } catch {}
 }
 function restoreConstraints() {
@@ -185,6 +186,14 @@ function giveFeedback(kind) {
     else if (kind === 'skip') { Store.bump(id, 'disliked'); }
     Store.recordTap(kind, id, cur.text);
     Store.logEvent({ id, kind, constraints: session.constraints, weather: Context.state.weather && Context.state.weather.label });
+  }
+  // "Not this time" doesn't drop you back to the start — it serves another action so
+  // you have to actually choose. But it draws from the SAME capped reroll budget, so
+  // there's no endless skipping. Once the cap is spent, it returns home.
+  if (kind === 'skip' && session.rerolls > 0) {
+    session.rerolls -= 1;
+    present(Engine.generate(session.constraints, Store.stats(), session.shownIds, new Date(), ambient()));
+    return;
   }
   showHome();
 }
@@ -364,8 +373,11 @@ function bind() {
       if (!chip) return;
       group.querySelectorAll('.chip').forEach((c) => c.classList.remove('is-on'));
       chip.classList.add('is-on');
+      persistConstraints(readConstraints()); // remember each pick immediately, not just on "Go"
     });
   });
+
+  el('stuck').addEventListener('input', () => persistConstraints(readConstraints()));
 
   document.querySelectorAll('#feedback .fb').forEach((b) => {
     b.addEventListener('click', () => giveFeedback(b.dataset.fb));

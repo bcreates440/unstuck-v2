@@ -50,7 +50,7 @@ function con(overrides) {
 }
 function ctx(overrides) {
   return { minutes: Infinity, hour: 12, daypart: 'day', venuesOpen: true, daylight: true,
-           weather: null, season: 'summer', region: null, reachMax: 2,
+           weather: null, season: 'summer', region: null, reach: 'flexible',
            prefs: {}, places: [], ...overrides };
 }
 function weather(overrides) {
@@ -126,20 +126,63 @@ test('"either" constraint always passes', () => {
   assert.ok(Engine.socialOk(act({ social: 'social' }), 'either'));
 });
 
-group('budgetOk');
+group('budgetOk — free < $ < $$ tiers');
 test('flexible constraint accepts anything', () => {
   assert.ok(Engine.budgetOk(act({ budget: 'free' }), 'flexible'));
-  assert.ok(Engine.budgetOk(act({ budget: 'low'  }), 'flexible'));
+  assert.ok(Engine.budgetOk(act({ budget: '$$'   }), 'flexible'));
 });
-test('free constraint rejects low-cost activity', () => {
-  assert.equal(Engine.budgetOk(act({ budget: 'low' }), 'free'), false);
+test('free constraint rejects a paid activity', () => {
+  assert.equal(Engine.budgetOk(act({ budget: '$' }), 'free'), false);
 });
 test('free constraint accepts free activity', () => {
   assert.ok(Engine.budgetOk(act({ budget: 'free' }), 'free'));
 });
-test('low constraint accepts both free and low', () => {
-  assert.ok(Engine.budgetOk(act({ budget: 'free' }), 'low'));
-  assert.ok(Engine.budgetOk(act({ budget: 'low'  }), 'low'));
+test('$ constraint accepts free + $, rejects $$', () => {
+  assert.ok(Engine.budgetOk(act({ budget: 'free' }), '$'));
+  assert.ok(Engine.budgetOk(act({ budget: '$'   }), '$'));
+  assert.equal(Engine.budgetOk(act({ budget: '$$' }), '$'), false);
+});
+test('$$ constraint accepts every tier', () => {
+  assert.ok(Engine.budgetOk(act({ budget: 'free' }), '$$'));
+  assert.ok(Engine.budgetOk(act({ budget: '$'   }), '$$'));
+  assert.ok(Engine.budgetOk(act({ budget: '$$'  }), '$$'));
+});
+test('legacy "low" alias behaves like $', () => {
+  assert.ok(Engine.budgetOk(act({ budget: 'low' }), '$'));    // low activity ≈ $
+  assert.ok(Engine.budgetOk(act({ budget: '$'   }), 'low'));  // low constraint ≈ $
+  assert.equal(Engine.budgetOk(act({ budget: '$$' }), 'low'), false);
+});
+
+group('reachOk — "how far will you go"');
+test('flexible / drive accept everything', () => {
+  assert.ok(Engine.reachOk(act({ reach: 'drive' }), 'flexible'));
+  assert.ok(Engine.reachOk(act({ reach: 'walk', minMinutes: 20 }), 'drive'));
+});
+test('here accepts only stay-put activities', () => {
+  assert.ok(Engine.reachOk(act({ reach: 'here' }), 'here'));
+  assert.equal(Engine.reachOk(act({ reach: 'walk' }), 'here'), false);
+});
+test('indoor accepts indoor/either stay-put, rejects outdoor & walks', () => {
+  assert.ok(Engine.reachOk(act({ reach: 'here', env: 'indoor' }), 'indoor'));
+  assert.ok(Engine.reachOk(act({ reach: 'here', env: 'either' }), 'indoor'));
+  assert.equal(Engine.reachOk(act({ reach: 'here', env: 'outdoor' }), 'indoor'), false);
+  assert.equal(Engine.reachOk(act({ reach: 'walk', env: 'indoor' }), 'indoor'), false);
+});
+test('walk accepts short walks, rejects long walks & drives', () => {
+  assert.ok(Engine.reachOk(act({ reach: 'walk', minMinutes: 10 }), 'walk'));
+  assert.equal(Engine.reachOk(act({ reach: 'walk', minMinutes: 20 }), 'walk'), false);
+  assert.equal(Engine.reachOk(act({ reach: 'drive' }), 'walk'), false);
+});
+test('longwalk accepts long walks (+ here fallback), rejects short walks & drives', () => {
+  assert.ok(Engine.reachOk(act({ reach: 'walk', minMinutes: 20 }), 'longwalk'));
+  assert.ok(Engine.reachOk(act({ reach: 'here' }), 'longwalk'));
+  assert.equal(Engine.reachOk(act({ reach: 'walk', minMinutes: 10 }), 'longwalk'), false);
+  assert.equal(Engine.reachOk(act({ reach: 'drive' }), 'longwalk'), false);
+});
+test('isLongWalk: a walk at/above the 15-min floor', () => {
+  assert.ok(Engine.isLongWalk(act({ reach: 'walk', minMinutes: 15 })));
+  assert.equal(Engine.isLongWalk(act({ reach: 'walk', minMinutes: 14 })), false);
+  assert.equal(Engine.isLongWalk(act({ reach: 'here', minMinutes: 30 })), false);
 });
 
 group('weatherTriggerMet');
@@ -169,8 +212,8 @@ test('rejects energy mismatch', () =>
   assert.equal(Engine.feasible(act({ energy: ['low'] }), con({ energy: 'high' }), ctx()), false));
 test('rejects daypart mismatch', () =>
   assert.equal(Engine.feasible(act({ daypart: ['day'] }), con(), ctx({ daypart: 'night' })), false));
-test('rejects drive activity when reachMax is here (0)', () =>
-  assert.equal(Engine.feasible(act({ reach: 'drive' }), con(), ctx({ reachMax: 0 })), false));
+test('rejects drive activity when reach is "here"', () =>
+  assert.equal(Engine.feasible(act({ reach: 'drive' }), con(), ctx({ reach: 'here' })), false));
 test('rejects needsLight when no daylight', () =>
   assert.equal(Engine.feasible(act({ needsLight: true }), con(), ctx({ daylight: false })), false));
 test('rejects seasonal activity out of season', () =>

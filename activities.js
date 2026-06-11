@@ -9,9 +9,10 @@
 //   vibe        array of 'calm' | 'creative' | 'adventurous' | 'productive'
 //   energy      array of 'low' | 'medium' | 'high'
 //   social      'solo' | 'social' | 'either'
-//   budget      'free' | 'low'
+//   budget      'free' (no spend) | '$' (a few dollars) | '$$' (a small outing, ~$10-30)
 //   env         'indoor' | 'outdoor' | 'either'
 //   reach       'here' (no travel) | 'walk' (short walk) | 'drive' (short drive)  -- NEW in v2
+//               A 'walk' entry with minMinutes >= 15 also counts as a "long walk".
 //   minMinutes  realistic floor to do it at all
 //   daypart     subset of ['day','evening','night']
 //   needsOpen   true if it needs shops/venues open
@@ -120,7 +121,7 @@ const ACTIVITIES = [
   // ---------- adventurous / out-of-house ----------
   {
     id: 'never-been-inside', vibe: ['adventurous'], energy: ['medium', 'high'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day', 'evening'], needsOpen: true,
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day', 'evening'], needsOpen: true,
     tags: ['stuck', 'bored', 'restless'],
     text: (ctx) => {
       const p = ctx.nearby(['eatery', 'cafe']);
@@ -131,7 +132,7 @@ const ACTIVITIES = [
   },
   {
     id: 'grocery-new-item', vibe: ['adventurous'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day', 'evening'], needsOpen: true,
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day', 'evening'], needsOpen: true,
     tags: ['bored', 'stuck'],
     text: (ctx) => {
       const p = ctx.nearby(['grocery']);
@@ -232,7 +233,7 @@ const ACTIVITIES = [
   },
   {
     id: 'be-around-people', vibe: ['calm', 'adventurous'], energy: ['low', 'medium'], social: 'social',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day', 'evening'], needsOpen: true,
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day', 'evening'], needsOpen: true,
     tags: ['lonely', 'scrolling', 'isolated'],
     text: (ctx) => {
       const p = ctx.nearby(['cafe', 'park', 'library', 'eatery']);
@@ -432,7 +433,7 @@ const ACTIVITIES = [
   },
   {
     id: 'market-wander', vibe: ['adventurous', 'calm'], energy: ['medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'], needsOpen: true,
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'], needsOpen: true,
     tags: ['bored', 'stuck', 'lonely'],
     text: () => `Go to a market, farm stand, or food hall and wander it slowly. Buy one small thing you've never tried, or nothing at all. The wandering is the point.`,
   },
@@ -646,7 +647,7 @@ const ACTIVITIES = [
   },
   {
     id: 'coffee-invite', vibe: ['adventurous'], energy: ['medium'], social: 'social',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'], needsOpen: true,
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'], needsOpen: true,
     tags: ['lonely', 'isolated', 'stuck'],
     text: (ctx) => { const p = ctx.nearby(['cafe', 'eatery']); const where = p ? ` Suggest ${p.name} (about ${p.minutes} min away).` : ''; return `Text someone "free for a quick coffee?" and actually mean now or soon.${where} Worst case they say no and you've lost nothing.`; },
   },
@@ -666,7 +667,7 @@ const ACTIVITIES = [
   },
   {
     id: 'heat-shade-drink', vibe: ['calm'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'walk', minMinutes: 10, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 10, daypart: ['day'],
     weatherOnly: ['hot'], tags: ['tired', 'overstimulated', 'stuck'],
     text: () => `It's hot out. Get a cold drink, find the best patch of shade you can reach, and sit in it for 10 minutes doing nothing. Let the heat slow you all the way down.`,
   },
@@ -778,7 +779,7 @@ const ACTIVITIES = [
   },
   {
     id: 'spr-plant-seed', vibe: ['creative', 'productive'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'either', reach: 'here', minMinutes: 10, daypart: ['day', 'evening'],
+    budget: '$', env: 'either', reach: 'here', minMinutes: 10, daypart: ['day', 'evening'],
     seasons: ['spring'], tags: ['stuck', 'numb', 'bored'],
     text: () => `Plant a seed or a herb in a pot — basil, a bean, anything. Put it on a sill where you'll watch it. Spring's the season to start things.`,
   },
@@ -820,7 +821,7 @@ const ACTIVITIES = [
   },
   {
     id: 'spr-picnic-first-warm', vibe: ['calm'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day'],
     seasons: ['spring'], minTemp: 14, tags: ['lonely', 'tired', 'stuck'],
     text: () => `It's finally warm enough — take a snack outside and sit right on the ground somewhere green for 20 minutes. The first one of the year always feels like something.`,
   },
@@ -852,7 +853,7 @@ const ACTIVITIES = [
   },
   {
     id: 'sum-cold-treat', vibe: ['calm'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'walk', minMinutes: 10, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 10, daypart: ['day', 'evening'],
     seasons: ['summer'], tags: ['tired', 'bored', 'scrolling'],
     text: () => `Get an ice cream or popsicle and eat it walking slowly outside before it melts down your hand. Pure summer, no agenda.`,
   },
@@ -876,7 +877,7 @@ const ACTIVITIES = [
   },
   {
     id: 'sum-berry-pick', vibe: ['adventurous', 'calm'], energy: ['medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'],
     seasons: ['summer'], needsOpen: true, tags: ['bored', 'lonely', 'stuck'],
     text: () => `Go pick berries, or buy a punnet from a stand, and eat a few while they're still warm from the sun. Summer doesn't taste like much else.`,
   },
@@ -944,7 +945,7 @@ const ACTIVITIES = [
   },
   {
     id: 'aut-orchard', vibe: ['adventurous', 'calm'], energy: ['medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'],
     seasons: ['autumn'], needsOpen: true, tags: ['bored', 'lonely', 'stuck'],
     text: () => `Go to an orchard, farm, or market for the season's haul — apples, cider, a pumpkin. Pick the ugliest, most interesting one.`,
   },
@@ -1111,13 +1112,13 @@ const ACTIVITIES = [
   // ---------- outdoor · adventurous / exploration (14) ----------
   {
     id: 'g-new-cafe-sit', vibe: ['adventurous', 'calm'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
     needsOpen: true, tags: ['stuck', 'bored', 'lonely'],
     text: (ctx) => { const p = ctx.nearby(['cafe', 'eatery']); const w = p ? `${p.name} (about ${p.minutes} min away)` : `a café you've never tried`; return `Go sit in ${w} on your own. Order something you can't pronounce and just be there a while.`; },
   },
   {
     id: 'g-transit-random', vibe: ['adventurous'], energy: ['medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 60, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 60, daypart: ['day', 'evening'],
     needsOpen: true, tags: ['bored', 'stuck', 'restless'],
     text: () => `Hop on a bus or train going one direction, ride a few stops, get off somewhere you don't know, look around for 10 minutes, then make your way back.`,
   },
@@ -1159,7 +1160,7 @@ const ACTIVITIES = [
   },
   {
     id: 'g-thrift-weird', vibe: ['adventurous', 'creative'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
     needsOpen: true, tags: ['bored', 'stuck', 'scrolling'],
     text: () => `Pop into a thrift or charity shop and hunt down the single weirdest object in there. You don't have to buy it — just find it.`,
   },
@@ -1177,7 +1178,7 @@ const ACTIVITIES = [
   },
   {
     id: 'g-garden-visit', vibe: ['calm', 'adventurous'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'],
     needsOpen: true, tags: ['stuck', 'numb', 'overwhelmed'],
     text: () => `Visit a botanical garden, greenhouse, or conservatory and wander it slowly. Find one plant you've never seen before and learn its name.`,
   },
@@ -1189,7 +1190,7 @@ const ACTIVITIES = [
   },
   {
     id: 'g-night-shops', vibe: ['adventurous'], energy: ['medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['evening'],
     needsOpen: true, tags: ['bored', 'lonely', 'restless'],
     text: () => `Wander an open-late shopping street or night market with a strict rule: buy nothing (or one small thing). Just move through the lights and noise.`,
   },
@@ -1271,7 +1272,7 @@ const ACTIVITIES = [
   },
   {
     id: 'g-snack-invite', vibe: ['adventurous'], energy: ['low', 'medium'], social: 'social',
-    budget: 'low', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day', 'evening'],
     tags: ['lonely', 'isolated', 'numb'],
     text: () => `Grab a snack or two coffees and text someone nearby to come eat it outside with you. Low stakes, real contact.`,
   },
@@ -1629,7 +1630,7 @@ const ACTIVITIES = [
   // ---------- United Kingdom (10) ----------
   {
     id: 'uk-pub-half', vibe: ['calm', 'adventurous'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
     regions: ['UK'], needsOpen: true, tags: ['lonely', 'stuck', 'bored'],
     text: () => `Walk to your local pub, order a half or a soft drink, and sit in a corner soaking up the hum of it for a bit. You don't have to talk to anyone.`,
   },
@@ -1697,7 +1698,7 @@ const ACTIVITIES = [
   },
   {
     id: 'ca-coffee-run', vibe: ['calm', 'adventurous'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day', 'evening'],
     regions: ['CA'], needsOpen: true, tags: ['bored', 'stuck', 'lonely'],
     text: () => `Do a coffee run to the nearest spot and order it a way you never have — different size, different roast, a tea even. Sit in for once.`,
   },
@@ -1739,7 +1740,7 @@ const ACTIVITIES = [
   },
   {
     id: 'ca-farmers-market', vibe: ['adventurous', 'calm'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'],
     regions: ['CA'], needsOpen: true, tags: ['bored', 'lonely', 'stuck'],
     text: () => `Hit up a farmers' market or farm stand and buy one local thing you don't usually — the season's short, so eat it while it's here.`,
   },
@@ -1771,7 +1772,7 @@ const ACTIVITIES = [
   },
   {
     id: 'au-flat-white', vibe: ['calm', 'adventurous'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day'],
     regions: ['AU'], needsOpen: true, tags: ['lonely', 'stuck', 'scrolling'],
     text: () => `Get a flat white from a local café and drink it sitting outside in the sun, watching the street. No laptop, no rush — proper café culture.`,
   },
@@ -1789,13 +1790,13 @@ const ACTIVITIES = [
   },
   {
     id: 'au-park-bbq', vibe: ['adventurous', 'calm'], energy: ['low', 'medium'], social: 'social',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
     regions: ['AU'], tags: ['lonely', 'isolated', 'bored'],
     text: () => `Head to a park with a public BBQ and either fire it up or just take a picnic. Text someone to come along — half the country basically lives at the park.`,
   },
   {
     id: 'au-local-shops', vibe: ['adventurous'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'walk', minMinutes: 12, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 12, daypart: ['day', 'evening'],
     regions: ['AU'], needsOpen: true, tags: ['bored', 'stuck', 'autopilot'],
     text: () => `Walk down to the local shops or milk bar for one small thing. The walk's the point; the thing's just the excuse to leave the house.`,
   },
@@ -1821,13 +1822,13 @@ const ACTIVITIES = [
   },
   {
     id: 'in-chai-break', vibe: ['calm'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'walk', minMinutes: 10, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 10, daypart: ['day', 'evening'],
     regions: ['IN'], needsOpen: true, tags: ['overstimulated', 'tired', 'scrolling'],
     text: () => `Walk to the nearest stall for a cutting chai and drink it standing there, slowly, watching the street go by. The ten-rupee reset.`,
   },
   {
     id: 'in-market-bazaar', vibe: ['adventurous'], energy: ['medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
     regions: ['IN'], needsOpen: true, tags: ['bored', 'stuck', 'numb'],
     text: () => `Wander the local market or bazaar with no list. Take in the colour and noise, and buy one fruit or snack you've never tried before.`,
   },
@@ -1845,7 +1846,7 @@ const ACTIVITIES = [
   },
   {
     id: 'in-kite-fly', vibe: ['adventurous', 'creative'], energy: ['medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'here', minMinutes: 15, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'here', minMinutes: 15, daypart: ['day'],
     regions: ['IN'], needsLight: true, tags: ['bored', 'restless', 'stuck'],
     text: () => `Get up to the terrace or an open ground and fly a kite for a while — or make a quick paper one. If there's a breeze, that's the whole afternoon sorted.`,
   },
@@ -1869,7 +1870,7 @@ const ACTIVITIES = [
   },
   {
     id: 'in-street-food-new', vibe: ['adventurous'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'],
     regions: ['IN'], needsOpen: true, tags: ['bored', 'stuck', 'lonely'],
     text: () => `Find a busy, popular stall (busy means fresh) and try one street snack you've never had. Eat it right there. The crowd is the review.`,
   },
@@ -1883,7 +1884,7 @@ const ACTIVITIES = [
   },
   {
     id: 'de-baeckerei', vibe: ['calm', 'adventurous'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'walk', minMinutes: 12, daypart: ['day'],
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 12, daypart: ['day'],
     regions: ['DE'], needsOpen: true, tags: ['tired', 'scrolling', 'lonely'],
     text: () => `Walk to a bakery for something fresh — a Brötchen, a pretzel, a slice of something. Eat it warm on the way home. Small, daily, good.`,
   },
@@ -1895,7 +1896,7 @@ const ACTIVITIES = [
   },
   {
     id: 'de-see-swim', vibe: ['adventurous'], energy: ['medium', 'high'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
     regions: ['DE'], seasons: ['summer'], minTemp: 22, tags: ['wired', 'restless', 'overstimulated'],
     text: () => `It's warm — head to the nearest lake (See) or open-air pool (Freibad) and get in the water. Summers are made for this here.`,
   },
@@ -1907,19 +1908,19 @@ const ACTIVITIES = [
   },
   {
     id: 'de-biergarten', vibe: ['calm', 'adventurous'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
     regions: ['DE'], needsOpen: true, tags: ['lonely', 'stuck', 'bored'],
     text: () => `Sit in a beer garden under the chestnut trees with a drink — a Radler, an Apfelschorle, whatever. Bring a book or just watch. Unhurried by design.`,
   },
   {
     id: 'de-kaffee-kuchen', vibe: ['calm'], energy: ['low'], social: 'either',
-    budget: 'low', env: 'indoor', reach: 'here', minMinutes: 15, daypart: ['day', 'evening'],
+    budget: '$', env: 'indoor', reach: 'here', minMinutes: 15, daypart: ['day', 'evening'],
     regions: ['DE'], tags: ['tired', 'overstimulated', 'scrolling'],
     text: () => `Do a proper Kaffee und Kuchen — a coffee and a slice of something, sat down, no phone, no rush. The afternoon ritual that says: pause now.`,
   },
   {
     id: 'de-christmas-market', vibe: ['calm', 'adventurous'], energy: ['low', 'medium'], social: 'either',
-    budget: 'low', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['evening'],
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['evening'],
     regions: ['DE'], seasons: ['winter'], needsOpen: true, tags: ['lonely', 'numb', 'scrolling'],
     text: () => `If a Weihnachtsmarkt is on, go wander it — the lights, the Glühwein steam, the woodsmoke and cinnamon. Buy one small warm thing and just soak it in.`,
   },
@@ -1934,5 +1935,285 @@ const ACTIVITIES = [
     budget: 'free', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day'],
     regions: ['DE'], needsLight: true, tags: ['anxious', 'overstimulated', 'overwhelmed'],
     text: () => `In the nearest woods, stop walking, stand still for 5 minutes, and just breathe the tree air — Waldbaden, forest bathing. Let the green do its quiet work.`,
+  },
+
+  // ============================================================
+  //  EXPANSION — BATCH 1 (toward 500). Adds the new budget tiers
+  //  ($ = a few dollars, $$ = a small outing), more long walks
+  //  (reach 'walk' with minMinutes >= 15), and more indoor-stay
+  //  options — while keeping the existing vibe/env proportions.
+  //  Voice unchanged: one specific, startable, bounded action.
+  // ============================================================
+
+  // ---------- long walks (reach 'walk', 15+ min) ----------
+  {
+    id: 'e1-edge-and-back', vibe: ['adventurous', 'calm'], energy: ['medium'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day', 'evening'],
+    tags: ['restless', 'stuck', 'autopilot'],
+    text: (ctx) => `Walk to the farthest edge of your neighborhood — wherever it stops feeling like "yours" — and come straight back. Aim for ${dur(ctx, 20, 35)} minutes. The boundary is the destination.`,
+  },
+  {
+    id: 'e1-album-walk', vibe: ['calm', 'creative'], energy: ['medium'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day', 'evening'],
+    tags: ['scrolling', 'numb', 'restless'],
+    text: () => `Put on one full album — start to finish — and walk for as long as it plays. No skipping tracks, no turning back early. When it ends, you're done.`,
+  },
+  {
+    id: 'e1-greenway-walk', vibe: ['calm', 'adventurous'], energy: ['medium'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day', 'evening'], needsLight: true,
+    tags: ['overwhelmed', 'stuck', 'wired'],
+    text: (ctx) => { const p = ctx.nearby(['park', 'water']); const where = p ? `toward ${p.name} (about ${p.minutes} min away)` : 'toward the nearest trail, river path, or green strip'; return `Take a long, unhurried walk ${where} and keep going for at least ${dur(ctx, 20, 30)} minutes. Let the rhythm do the thinking for you.`; },
+  },
+  {
+    id: 'e1-next-neighborhood', vibe: ['adventurous'], energy: ['medium', 'high'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 25, daypart: ['day', 'evening'],
+    tags: ['bored', 'stuck', 'autopilot'],
+    text: () => `Walk all the way to the next neighborhood over — far enough that the shops and street names change. Look around for 2 minutes, then walk home a different way.`,
+  },
+  {
+    id: 'e1-litter-loop', vibe: ['productive', 'adventurous'], energy: ['medium'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day', 'evening'], needsLight: true,
+    tags: ['restless', 'numb', 'stuck'],
+    text: () => `Grab a bag and take a 20-minute walk picking up litter as you go. Stop when the bag's full or the time's up. You'll see your own streets completely differently.`,
+  },
+  {
+    id: 'e1-perimeter-loop', vibe: ['adventurous', 'productive'], energy: ['high'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 18, daypart: ['day', 'evening'],
+    tags: ['wired', 'restless', 'stuck'],
+    text: (ctx) => `Walk the biggest single loop you can make from your door without retracing your steps — aim for ${dur(ctx, 18, 30)} minutes. Keep turning so you always end up coming back around.`,
+  },
+  {
+    id: 'e1-sunset-chase', vibe: ['calm', 'adventurous'], energy: ['medium'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['evening'],
+    tags: ['scrolling', 'numb', 'restless'],
+    text: () => `Walk west for 15 minutes toward wherever the light is going, then turn and walk back in the dimming blue. Two different walks in one, divided by the sunset.`,
+  },
+
+  // ---------- $ — a few dollars ----------
+  {
+    id: 'e1-coffee-counter', vibe: ['adventurous', 'calm'], energy: ['low', 'medium'], social: 'either',
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day'], needsOpen: true,
+    tags: ['scrolling', 'lonely', 'stuck'],
+    text: (ctx) => { const p = ctx.nearby(['cafe']); const where = p ? `${p.name} (about ${p.minutes} min away)` : 'the nearest café you don\'t usually go to'; return `Walk to ${where}, order one coffee or tea at the counter, and drink it in — sat down, no laptop, no phone. Just the drink and the room.`; },
+  },
+  {
+    id: 'e1-postcard-mail', vibe: ['creative', 'calm'], energy: ['low', 'medium'], social: 'social',
+    budget: '$', env: 'either', reach: 'walk', minMinutes: 15, daypart: ['day'], needsOpen: true,
+    tags: ['lonely', 'numb', 'stuck'],
+    text: () => `Buy a single postcard and a stamp, write three real sentences to someone on it, and post it today. Physical mail to one person — almost no one does this anymore.`,
+  },
+  {
+    id: 'e1-one-secondhand-book', vibe: ['adventurous', 'calm'], energy: ['low', 'medium'], social: 'solo',
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 20, daypart: ['day'], needsOpen: true,
+    tags: ['bored', 'scrolling', 'stuck'],
+    text: (ctx) => { const p = ctx.nearby(['books', 'library']); const where = p ? `${p.name} (about ${p.minutes} min away)` : 'a secondhand bookshop or charity shop'; return `Go to ${where} and buy exactly one used book for a couple of dollars — pick by cover or first line, not reviews. Start it tonight.`; },
+  },
+  {
+    id: 'e1-new-fruit', vibe: ['adventurous'], energy: ['low'], social: 'either',
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'], needsOpen: true,
+    tags: ['bored', 'numb', 'stuck'],
+    text: (ctx) => { const p = ctx.nearby(['grocery']); const where = p ? `${p.name} (about ${p.minutes} min away)` : 'the nearest shop or market'; return `Walk to ${where} and buy one piece of fruit you've never eaten — the weirder the better. Eat it the moment you get home, mess and all.`; },
+  },
+  {
+    id: 'e1-bakery-warm', vibe: ['calm'], energy: ['low'], social: 'either',
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day'], needsOpen: true,
+    tags: ['tired', 'scrolling', 'sad'],
+    text: () => `Walk to a bakery and buy one warm thing — a roll, a pastry, a slice. Eat it slowly on a bench or on the walk home before it cools. A tiny, daily kind of good.`,
+  },
+  {
+    id: 'e1-bus-somewhere', vibe: ['adventurous'], energy: ['medium'], social: 'solo',
+    budget: '$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'], needsOpen: true,
+    tags: ['bored', 'stuck', 'autopilot'],
+    text: () => `Get on the next bus or tram going somewhere you've never been, ride it 6 or 7 stops, get off, look around for 10 minutes, and make your way back. Cheap, low-stakes exploring.`,
+  },
+
+  // ---------- $$ — a small outing (~$10-30) ----------
+  {
+    id: 'e1-matinee', vibe: ['calm', 'adventurous'], energy: ['low'], social: 'either',
+    budget: '$$', env: 'indoor', reach: 'drive', minMinutes: 120, daypart: ['day', 'evening'], needsOpen: true,
+    tags: ['lonely', 'numb', 'scrolling'],
+    text: () => `Go see whatever's showing at the nearest cinema — don't research it, just pick the next start time. Sit in the dark with strangers and let a story carry you somewhere.`,
+  },
+  {
+    id: 'e1-museum-one-room', vibe: ['calm', 'creative'], energy: ['low', 'medium'], social: 'either',
+    budget: '$$', env: 'indoor', reach: 'drive', minMinutes: 60, daypart: ['day'], needsOpen: true,
+    tags: ['stuck', 'bored', 'overwhelmed'],
+    text: (ctx) => { const p = ctx.nearby(['museum', 'gallery']); const where = p ? `${p.name} (about ${p.minutes} min away)` : 'the nearest museum or gallery'; return `Go to ${where} and spend your whole visit in just ONE room. Find the single piece you'd take home and look at it until you know why. Then leave.`; },
+  },
+  {
+    id: 'e1-paint-a-pot', vibe: ['creative'], energy: ['medium'], social: 'social',
+    budget: '$$', env: 'indoor', reach: 'drive', minMinutes: 60, daypart: ['day', 'evening'], needsOpen: true,
+    tags: ['bored', 'stuck', 'lonely'],
+    text: () => `Find a paint-your-own-pottery or craft studio and make one small thing — a mug, a dish, whatever. It only has to be yours, not good. Bring someone if you can.`,
+  },
+  {
+    id: 'e1-bowling-game', vibe: ['adventurous', 'productive'], energy: ['medium', 'high'], social: 'social',
+    budget: '$$', env: 'indoor', reach: 'drive', minMinutes: 60, daypart: ['evening', 'night'], needsOpen: true,
+    tags: ['restless', 'bored', 'lonely'],
+    text: () => `Go bowl one single game — just one — or play a round of mini-golf or a few arcade machines. Keep score badly. The point is to move and laugh, not to win.`,
+  },
+  {
+    id: 'e1-day-swim', vibe: ['adventurous', 'calm'], energy: ['medium', 'high'], social: 'either',
+    budget: '$$', env: 'indoor', reach: 'drive', minMinutes: 60, daypart: ['day', 'evening'], needsOpen: true,
+    tags: ['wired', 'numb', 'restless'],
+    text: () => `Buy a day pass to a public pool or leisure centre and get in the water for half an hour. Swim slow laps or just float. Water resets the nervous system like little else.`,
+  },
+  {
+    id: 'e1-nursery-plant', vibe: ['calm', 'creative'], energy: ['low', 'medium'], social: 'either',
+    budget: '$$', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day'], needsOpen: true,
+    tags: ['numb', 'stuck', 'sad'],
+    text: () => `Go to a garden centre or plant shop and bring home one living plant you'll actually tend. Choose the one you keep walking back to. Give it a spot by a window tonight.`,
+  },
+  {
+    id: 'e1-botanical-garden', vibe: ['calm', 'adventurous'], energy: ['low', 'medium'], social: 'either',
+    budget: '$$', env: 'outdoor', reach: 'drive', minMinutes: 60, daypart: ['day'], needsOpen: true, needsLight: true,
+    tags: ['overwhelmed', 'scrolling', 'stuck'],
+    text: () => `Visit a botanical garden, arboretum, or conservatory and walk it slowly with no map. Find the one plant or glasshouse that stops you, and stay there a while.`,
+  },
+  {
+    id: 'e1-thrift-challenge', vibe: ['adventurous', 'creative'], energy: ['low', 'medium'], social: 'either',
+    budget: '$$', env: 'indoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'], needsOpen: true,
+    tags: ['bored', 'stuck', 'scrolling'],
+    text: () => `Go to a thrift or charity shop with a strict $15 cap and one rule: leave with a single thing that makes you smile. Treasure hunt, not shopping trip.`,
+  },
+
+  // ---------- indoor-stay (for "stay in") ----------
+  {
+    id: 'e1-reshelve-books', vibe: ['creative', 'calm'], energy: ['low', 'medium'], social: 'solo',
+    budget: 'free', env: 'indoor', reach: 'here', minMinutes: 15, daypart: ['day', 'evening', 'night'],
+    tags: ['restless', 'bored', 'procrastinating'],
+    text: () => `Pick one shelf of books and reorder the whole thing by a rule of your choosing — height, color, how much you loved them. Pull out one you forgot you owned and set it aside to reread.`,
+  },
+  {
+    id: 'e1-slow-cook', vibe: ['calm', 'productive'], energy: ['medium'], social: 'either',
+    budget: '$', env: 'indoor', reach: 'here', minMinutes: 30, daypart: ['day', 'evening'],
+    tags: ['numb', 'bored', 'stuck'],
+    text: () => `Cook one thing that takes real time — a pot of soup, a tray of roast veg, something that fills the place with smell. Tending a slow thing is its own kind of calm.`,
+  },
+  {
+    id: 'e1-photo-cull', vibe: ['productive', 'calm'], energy: ['low'], social: 'solo',
+    budget: 'free', env: 'indoor', reach: 'here', minMinutes: 10, daypart: ['day', 'evening', 'night'],
+    tags: ['procrastinating', 'overwhelmed', 'scrolling'],
+    text: () => `Open your camera roll and delete 30 junk photos — screenshots, blurs, duplicates. Counting up to 30 is the whole task. It turns mindless scrolling into a tiny clearing-out.`,
+  },
+  {
+    id: 'e1-repot-plant', vibe: ['calm', 'creative'], energy: ['medium'], social: 'solo',
+    budget: 'free', env: 'indoor', reach: 'here', minMinutes: 15, daypart: ['day', 'evening'],
+    tags: ['restless', 'numb', 'stuck'],
+    text: () => `Repot one plant that's outgrown its home, or take a cutting and put it in water on the windowsill. Hands in soil, one small living thing tended. That's enough.`,
+  },
+  {
+    id: 'e1-jigsaw-corner', vibe: ['calm'], energy: ['low'], social: 'either',
+    budget: 'free', env: 'indoor', reach: 'here', minMinutes: 15, daypart: ['day', 'evening', 'night'],
+    tags: ['overstimulated', 'wired', 'anxious'],
+    text: () => `Start a jigsaw puzzle — just the edge, or just one corner. If you don't own one, sort a deck of cards or a drawer of loose photos instead. Repetitive, quiet, and oddly steadying.`,
+  },
+  {
+    id: 'e1-mobility-flow', vibe: ['productive', 'calm'], energy: ['low', 'medium'], social: 'solo',
+    budget: 'free', env: 'indoor', reach: 'here', minMinutes: 10, daypart: ['day', 'evening', 'night'],
+    tags: ['tired', 'wired', 'restless'],
+    text: () => `Roll out a towel or mat and spend 10 minutes on slow mobility — neck rolls, cat-cow, hip circles, shoulder openers. No app, no count. Just unstick the joints that have been still all day.`,
+  },
+  {
+    id: 'e1-letter-to-self', vibe: ['calm', 'creative'], energy: ['low'], social: 'solo',
+    budget: 'free', env: 'indoor', reach: 'here', minMinutes: 10, daypart: ['evening', 'night'],
+    tags: ['sad', 'numb', 'overwhelmed'],
+    text: () => `Write half a page to yourself a year from now. Tell them where you are right now, honestly. Seal it, date it for 12 months out, and put it somewhere you'll stumble on it.`,
+  },
+  {
+    id: 'e1-radio-elsewhere', vibe: ['creative', 'calm'], energy: ['low'], social: 'solo',
+    budget: 'free', env: 'indoor', reach: 'here', minMinutes: 10, daypart: ['day', 'evening', 'night'],
+    tags: ['lonely', 'bored', 'scrolling'],
+    text: () => `Find a live radio stream from a city on the other side of the world and just listen for 10 minutes — the music, the ads, the language you may not speak. A window into someone else's ordinary evening.`,
+  },
+
+  // ---------- outdoor · more of every vibe ----------
+  {
+    id: 'e1-puddle-reflections', vibe: ['creative'], energy: ['low', 'medium'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 10, daypart: ['day', 'evening'],
+    weatherOnly: ['wet'], tags: ['scrolling', 'bored', 'numb'],
+    text: () => `It's wet out — go photograph reflections in puddles for 10 minutes. Crouch low, shoot the upside-down world in them. The worse the weather, the better the mirrors.`,
+  },
+  {
+    id: 'e1-bench-letter', vibe: ['calm', 'creative'], energy: ['low'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'],
+    tags: ['overwhelmed', 'lonely', 'stuck'],
+    text: () => `Walk to a bench with a view, take paper and a pen, and write down everything that's crowding your head — no order, no filter — until the page is full. Then walk home lighter.`,
+  },
+  {
+    id: 'e1-five-textures', vibe: ['calm', 'creative'], energy: ['low'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 10, daypart: ['day', 'evening'],
+    tags: ['anxious', 'numb', 'overstimulated'],
+    text: () => `Take a slow walk and deliberately touch 5 different textures — bark, a cold railing, a leaf, brick, moss. Really feel each one for a few seconds. It pulls you straight out of your head.`,
+  },
+  {
+    id: 'e1-golden-bench-read', vibe: ['calm'], energy: ['low'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'],
+    weatherOnly: ['clear'], needsLight: true, tags: ['scrolling', 'tired', 'stuck'],
+    text: () => `The light's good — take a book or an article outside and read it on a bench in the sun for 15 minutes. No notifications, no second tab. Just the page and the warmth.`,
+  },
+  {
+    id: 'e1-sketch-one-tree', vibe: ['creative', 'calm'], energy: ['low', 'medium'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day'], needsLight: true,
+    tags: ['bored', 'scrolling', 'numb'],
+    text: () => `Walk to one tree that catches your eye, sit with it, and spend 10 minutes drawing only its branches — where they fork, how they reach. You'll never see that tree the same way again.`,
+  },
+  {
+    id: 'e1-dawn-step-out', vibe: ['calm', 'adventurous'], energy: ['low', 'medium'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'here', minMinutes: 5, daypart: ['day'], needsLight: true,
+    tags: ['wired', 'cant-sleep', 'numb'],
+    text: () => `Step right outside and stand in the early light for 5 minutes — no phone, no agenda. Let daylight hit your eyes first thing. It quietly sets the whole day's clock.`,
+  },
+  {
+    id: 'e1-errand-on-foot', vibe: ['productive', 'adventurous'], energy: ['medium'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 20, daypart: ['day', 'evening'],
+    tags: ['procrastinating', 'restless', 'stuck'],
+    text: () => `Pick one small errand you'd normally drive for and do it entirely on foot instead. The walk is the reward; the errand is just the excuse to leave the house.`,
+  },
+
+  // ---------- seasonal additions ----------
+  {
+    id: 'e1-leaf-crunch', vibe: ['calm', 'creative'], energy: ['low', 'medium'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'],
+    seasons: ['autumn'], needsLight: true, tags: ['scrolling', 'numb', 'bored'],
+    text: () => `Go find the deepest pile of fallen leaves you can and walk through it on purpose — kick it, listen to the crunch. Bring back the single most perfect leaf you find.`,
+  },
+  {
+    id: 'e1-blossom-hunt', vibe: ['calm', 'adventurous'], energy: ['low', 'medium'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'],
+    seasons: ['spring'], needsLight: true, tags: ['stuck', 'sad', 'scrolling'],
+    text: () => `Go find the first blossom or bud breaking out near you and stand with it for a minute. Spring shows up in small places first — your job is just to catch it starting.`,
+  },
+  {
+    id: 'e1-summer-cold-treat', vibe: ['calm', 'adventurous'], energy: ['low'], social: 'either',
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'],
+    seasons: ['summer'], minTemp: 22, needsOpen: true, tags: ['tired', 'overstimulated', 'stuck'],
+    text: () => `It's warm — walk somewhere for one cold treat (an ice cream, a popsicle, an iced drink) and eat it outside before it melts. A small, deliberate piece of summer.`,
+  },
+  {
+    id: 'e1-frost-look', vibe: ['calm', 'creative'], energy: ['low'], social: 'solo',
+    budget: 'free', env: 'outdoor', reach: 'here', minMinutes: 5, daypart: ['day'],
+    seasons: ['winter'], maxTemp: 3, needsLight: true, tags: ['numb', 'scrolling', 'overstimulated'],
+    text: () => `Step out and find frost — on a windscreen, a leaf, a railing. Look at the actual crystal patterns up close before they melt. Winter does free, intricate artwork overnight.`,
+  },
+
+  // ---------- region additions ----------
+  {
+    id: 'e1-uk-greasy-spoon', vibe: ['calm', 'adventurous'], energy: ['low'], social: 'either',
+    budget: '$', env: 'indoor', reach: 'walk', minMinutes: 20, daypart: ['day'],
+    regions: ['UK'], needsOpen: true, tags: ['lonely', 'tired', 'stuck'],
+    text: () => `Walk to a proper caff or greasy spoon, order a builder's tea and sit in with it. The clatter and the steamed-up windows do something a chain café never will.`,
+  },
+  {
+    id: 'e1-au-ocean-dip', vibe: ['adventurous', 'calm'], energy: ['medium', 'high'], social: 'either',
+    budget: 'free', env: 'outdoor', reach: 'drive', minMinutes: 30, daypart: ['day', 'evening'],
+    regions: ['AU'], minTemp: 20, needsLight: true, tags: ['wired', 'numb', 'overstimulated'],
+    text: () => `Head to the nearest beach or ocean pool and get in for a quick dip — even just to your waist. Salt water and that first cold shock reset everything. Towel off and walk it back.`,
+  },
+  {
+    id: 'e1-ca-tim-walk', vibe: ['calm'], energy: ['low'], social: 'either',
+    budget: '$', env: 'outdoor', reach: 'walk', minMinutes: 15, daypart: ['day', 'evening'],
+    regions: ['CA'], needsOpen: true, tags: ['tired', 'lonely', 'scrolling'],
+    text: () => `Walk to the nearest coffee shop, grab a double-double or a tea, and take the long way home with it in hand. Cold or not, the walk-and-sip is half the point.`,
   },
 ];
