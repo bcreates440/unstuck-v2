@@ -120,7 +120,7 @@
 
       <div class="result-actions">
         <button id="reroll" class="reroll-btn">Something else <span id="reroll-count"></span></button>
-        <button id="back" class="ghost-btn">Done for now</button>
+        <button id="empty-back" class="ghost-btn" type="button" hidden>← Back to start</button>
       </div>
     </section>
 
@@ -190,9 +190,50 @@
         </div>
       </div>
 
+      <p class="set-group-label">Reflect</p>
+      <div class="set-list">
+        <button id="open-stats" class="set-row set-link" type="button">
+          <div class="set-text">
+            <span class="set-title">Your activity history</span>
+            <span class="set-sub">See how often you act on suggestions, and revisit the ones you did.</span>
+          </div>
+          <span class="set-chev" aria-hidden="true">›</span>
+        </button>
+      </div>
+
+      <button id="save-settings" class="save-btn" type="button">Save settings</button>
       <button id="clear-data" class="ghost-btn danger" type="button">Clear saved data</button>
     </section>
+
+    <!-- STATS: reflection page — tracked-action tallies + revisitable "did it" list -->
+    <section id="stats" class="view" hidden>
+      <header class="settings-head">
+        <button id="stats-close" class="ghost-btn" type="button">‹ Back</button>
+        <h2>Your activity history</h2>
+      </header>
+
+      <p class="set-group-label">What you chose</p>
+      <div class="tally-grid">
+        <div class="tally">
+          <span class="tally-num" id="tally-good">0</span>
+          <span class="tally-label">👍 Did it</span>
+        </div>
+        <div class="tally">
+          <span class="tally-num" id="tally-meh">0</span>
+          <span class="tally-label">😐 Did it, meh</span>
+        </div>
+        <div class="tally">
+          <span class="tally-num" id="tally-skip">0</span>
+          <span class="tally-label">✕ Not this time</span>
+        </div>
+      </div>
+
+      <p class="set-group-label">Ones you did &amp; liked</p>
+      <div id="liked-list" class="liked-list"></div>
+    </section>
   </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="util.js"></script>
   <script src="settings.js"></script>

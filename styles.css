@@ -341,6 +341,95 @@ body {
 
 .danger { color: var(--danger); font-weight: 700; margin-top: 22px; align-self: center; }
 
+/* settings -> stats link row (button styled like a set-row) */
+.set-link {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: var(--font-body);
+  color: var(--ink);
+  cursor: pointer;
+}
+.set-chev { color: var(--ink-soft); font-size: 26px; font-weight: 600; line-height: 1; flex: none; }
+.set-link:hover .set-chev { color: var(--ink); }
+
+/* explicit Save button */
+.save-btn {
+  margin-top: 24px;
+  min-height: var(--tap);
+  border: none;
+  border-radius: 18px;
+  background: linear-gradient(155deg, var(--primary), var(--primary-2));
+  color: var(--on-primary);
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-cta);
+  transition: transform 0.16s var(--ease-bounce), box-shadow 0.2s ease;
+}
+.save-btn:hover { transform: translateY(-1px); }
+.save-btn:active { transform: scale(0.97); }
+
+/* ---------- stats / reflection page ---------- */
+.tally-grid { display: flex; gap: 10px; }
+.tally {
+  flex: 1;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 10px;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+.tally-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 30px; font-weight: 700;
+  color: var(--accent);
+}
+.tally-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin-top: 4px; }
+
+.liked-list { display: flex; flex-direction: column; gap: 10px; }
+.liked-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 15px 16px;
+  box-shadow: var(--shadow-soft);
+}
+.liked-text { margin: 0; flex: 1; font-size: 15px; line-height: 1.45; }
+.liked-badge {
+  flex: none;
+  font-size: 12px; font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.liked-empty { color: var(--ink-soft); font-size: 15px; line-height: 1.5; text-align: center; padding: 8px 4px; }
+
+/* ---------- save toast ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 12px);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 14.5px; font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 0.22s ease, transform 0.22s var(--ease-bounce);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after { transition: none !important; animation: none !important; }
 }
